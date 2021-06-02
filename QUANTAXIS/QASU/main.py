@@ -33,6 +33,9 @@ from QUANTAXIS.QASU import save_financialfiles
 from QUANTAXIS.QAUtil import DATABASE, print_used_time
 import time
 
+from QUANTAXIS.QASU import save_binance
+
+
 
 # from QUANTAXIS.QASU import crawl_jrj_financial_reportdate as save_financial_calendar
 # from QUANTAXIS.QASU import crawl_jrj_stock_divyield as save_stock_divyield
@@ -712,3 +715,24 @@ def QA_SU_save_single_bond_min(code, engine, client=DATABASE):
 
     engine = select_save_engine(engine)
     engine.QA_SU_save_single_bond_min(code=code, client=client)
+
+
+##########################
+# 主程序开始
+#########################
+if __name__ == '__main__':
+    import pandas as pd
+    frequency = '1m'
+    symbol_template = save_binance.Binance_SYMBOL
+    symbol = 'BTCUSDT'
+    # missing_data_list = QA_util_find_missing_kline(
+    #     symbol_template.format(symbol_info['symbol']),
+    #     Binance2QA_FREQUENCY_DICT[frequency],
+    # )[::-1]
+    missing_data_list = save_binance.QA_util_find_missing_kline(
+        symbol_template.format(symbol),
+        save_binance.Binance2QA_FREQUENCY_DICT[frequency],
+    )[::-1]
+
+    pd.DataFrame(missing_data_list).to_excel('./temp/miss_data.xlsx')
+    print(missing_data_list)

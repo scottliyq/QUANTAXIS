@@ -53,7 +53,8 @@ from QUANTAXIS.QAUtil import (
 
 TIMEOUT = 10
 ILOVECHINA = "同学！！你知道什么叫做科学上网么？ 如果你不知道的话，那么就加油吧！蓝灯，喵帕斯，VPS，阴阳师，v2ray，随便什么来一个！我翻墙我骄傲！"
-Binance_base_url = "https://api.binance.com"
+Binance_base_url = "https://fapi.binance.com"
+Binance_base_path = "/fapi/v1"
 
 column_names = [
     'start_time',
@@ -155,7 +156,7 @@ def format_binance_data_fields(datas, symbol, frequency):
 
 @retry(stop_max_attempt_number=3, wait_random_min=50, wait_random_max=100)
 def QA_fetch_binance_symbols():
-    url = urljoin(Binance_base_url, "/api/v1/exchangeInfo")
+    url = urljoin(Binance_base_url, Binance_base_path + "/exchangeInfo")
     retries = 1
     datas = list()
     while (retries != 0):
@@ -197,7 +198,7 @@ def QA_fetch_binance_kline_with_auto_retry(
     start_time *= 1000
     end_time *= 1000
     while start_time < end_time:
-        url = urljoin(Binance_base_url, "/api/v1/klines")
+        url = urljoin(Binance_base_url, Binance_base_path + "/klines")
         try:
             req = requests.get(
                 url,
@@ -376,7 +377,7 @@ if __name__ == '__main__':
     from dateutil.tz import *
 
     tz = pytz.timezone("Asia/Shanghai")
-    url = urljoin(Binance_base_url, "/api/v1/klines")
+    url = urljoin(Binance_base_url, Binance_base_path + "/klines")
     start = time.mktime(
         datetime.datetime(2018,
                           6,

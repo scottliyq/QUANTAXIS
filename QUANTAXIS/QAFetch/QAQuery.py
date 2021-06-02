@@ -1691,7 +1691,68 @@ def QA_fetch_cryptocurrency_list(
                     'desc'
                 ]
             )
-
+# 获取币安合约交易对
+def QA_fetch_cryptocurrency_future_list(
+    market=None,
+    collections=DATABASE.cryptocurrency_future_list
+):
+    '''
+    获取数字资产列表
+    '''
+    if (market is None):
+        cryptocurrency_list = pd.DataFrame(
+            [item for item in collections.find({})]
+        )
+        if (len(cryptocurrency_list) > 0):
+            return cryptocurrency_list.drop(
+                '_id',
+                axis=1,
+                inplace=False
+            ).set_index(
+                'symbol',
+                drop=False
+            )
+        else:
+            return pd.DataFrame(
+                columns=[
+                    'symbol',
+                    'name',
+                    'market',
+                    'state',
+                    'category',
+                    'base_currency',
+                    'quote_currency',
+                    'price_precision',
+                    'desc'
+                ]
+            )
+    else:
+        cryptocurrency_list = pd.DataFrame(
+            [item for item in collections.find({"market": market})]
+        )
+        if (len(cryptocurrency_list) > 0):
+            return cryptocurrency_list.drop(
+                '_id',
+                axis=1,
+                inplace=False
+            ).set_index(
+                'symbol',
+                drop=False
+            )
+        else:
+            return pd.DataFrame(
+                columns=[
+                    'symbol',
+                    'name',
+                    'market',
+                    'state',
+                    'category',
+                    'base_currency',
+                    'quote_currency',
+                    'price_precision',
+                    'desc'
+                ]
+            )
 
 def QA_fetch_cryptocurrency_day(
     code,
