@@ -43,8 +43,8 @@ from QUANTAXIS.QAUtil.QADate_Adv import (
     QA_util_print_timestamp
 )
 from QUANTAXIS.QAFetch.QAhuobi import (
-    QA_fetch_huobi_symbols,
-    QA_fetch_huobi_kline,
+    QA_fetch_huobi_symbols_future,
+    QA_fetch_huobi_kline_future,
     QA_fetch_huobi_kline_subscription,
     FIRST_PRIORITY,
 )
@@ -64,7 +64,7 @@ import pymongo
 
 # huobi的历史数据只是从2017年10月开始有，9.4以前的国内火币网的数据貌似都没有保留
 huobi_MIN_DATE = datetime.datetime(2017, 10, 1, tzinfo=tzutc())
-huobi_EXCHANGE = 'HUOBI_PRO'
+huobi_EXCHANGE = 'HUOBI_FUTURE'
 huobi_SYMBOL = 'HUOBI.{}'
 
 def QA_SU_save_huobi(frequency):
@@ -182,7 +182,7 @@ def QA_SU_save_huobi_day(frequency='1day',
             missing_data_list = miss_kline.values
 
         # 先用Rest API 获取最近2000个
-        data = QA_fetch_huobi_kline(
+        data = QA_fetch_huobi_kline_future(
             symbol_info['symbol'],
             time.mktime(start_time.utctimetuple()),
             time.mktime(end.utctimetuple()),
@@ -481,7 +481,7 @@ def QA_SU_save_huobi_symbol(market=huobi_EXCHANGE, client=DATABASE,):
     QA_util_log_info('Downloading {:s} symbol list...'.format(market))
 
     # 保存Huobi API 原始 Symbol 数据备查阅，自动交易用得着
-    raw_symbol_lists = QA_util_save_raw_symbols(QA_fetch_huobi_symbols, market)
+    raw_symbol_lists = QA_util_save_raw_symbols(QA_fetch_huobi_symbols_future, market)
 
     if (len(raw_symbol_lists) > 0):
         # 保存到 QUANTAXIS.cryptocurrency_list 数字资产列表，为了跨市场统一查询做数据汇总
@@ -489,35 +489,35 @@ def QA_SU_save_huobi_symbol(market=huobi_EXCHANGE, client=DATABASE,):
 
         # market,symbol为 mongodb 索引字段，保存之前必须要检查存在
         symbol_lists['market'] = market
-        symbol_lists['category'] = 1
-        symbol_lists['name'] = symbol_lists.apply(
-            lambda x: '{:s}/{:s}'.
-            format(x['base-currency'].upper(),
-                   x['quote-currency'].upper()),
-            axis=1
-        )
-        symbol_lists['desc'] = symbol_lists.apply(
-            lambda x: '现货: {:s} 兑换 {:s}'.
-            format(x['base-currency'],
-                   x['quote-currency']),
-            axis=1
-        )
+        # symbol_lists['category'] = 1
+        # symbol_lists['name'] = symbol_lists.apply(
+        #     lambda x: '{:s}/{:s}'.
+        #     format(x['base-currency'].upper(),
+        #            x['quote-currency'].upper()),
+        #     axis=1
+        # )
+        # symbol_lists['desc'] = symbol_lists.apply(
+        #     lambda x: '现货: {:s} 兑换 {:s}'.
+        #     format(x['base-currency'],
+        #            x['quote-currency']),
+        #     axis=1
+        # )
 
         # 移除非共性字段，这些字段只有 broker 才关心，做对应交易所 broker 接口的时候在交易所 raw_symbol_lists
         # 数据中读取。火币网超有个性的，注意字段里面的减号，不是下划线！！！
-        symbol_lists.drop(
-            [
-                'amount-precision',
-                'leverage-ratio',
-                'max-order-amt',
-                'min-order-amt',
-                'min-order-value',
-                'symbol-partition',
-                'value-precision'
-            ],
-            axis=1,
-            inplace=True
-        )
+        # symbol_lists.drop(
+        #     [
+        #         'amount-precision',
+        #         'leverage-ratio',
+        #         'max-order-amt',
+        #         'min-order-amt',
+        #         'min-order-value',
+        #         'symbol-partition',
+        #         'value-precision'
+        #     ],
+        #     axis=1,
+        #     inplace=True
+        # )
         if ('_id' in symbol_lists.columns.values):
             # 有时有，必须单独删除
             symbol_lists.drop(
@@ -691,9 +691,9 @@ def QA_SU_save_huobi_realtime():
 
 if __name__ == '__main__':
     QA_SU_save_huobi_symbol()
-    QA_SU_save_huobi_1day()
+    # QA_SU_save_huobi_1day()
     # QA_SU_save_huobi_min('60min')
-    # QA_SU_save_huobi_1min()
+    QA_SU_save_huobi_1min()
     # QA_SU_save_huobi('30min')
     # QA_SU_save_huobi_1hour(fetch_range=FIRST_PRIORITY)
     # QA_SU_save_huobi_30min(fetch_range=FIRST_PRIORITY)

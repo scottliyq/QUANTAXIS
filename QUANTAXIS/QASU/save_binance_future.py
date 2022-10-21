@@ -616,9 +616,9 @@ def QA_SU_save_data_binance_callback(data, freq):
         }
         refcount = col.count_documents(query_id)
     #处理重复的timestamp数据
-    data['time_stamp'] = data['datetime'].apply(string2timestamp)
-
-    data.to_excel('./temp/temp_data.xlsx')
+    #data['time_stamp'] = data['datetime'].apply(string2timestamp)
+    #todo 临时debug待删除
+    # data.to_excel('./temp/temp_data.xlsx')
     # 删除多余列
     if ('_id' in data.columns.values):
         data.drop(
@@ -658,12 +658,28 @@ def string2timestamp(strValue, format='%Y-%m-%d %H:%M:%S'):
         print(e)
         return timeStamp
 
-if __name__ == '__main__':
+def save_binance_future(type):
     global Binance_base_url, Binance_base_path
     Binance_base_url = "https://fapi.binance.com"
     Binance_base_path = "/fapi/v1"
 
     # QA_SU_save_binance_symbol()
-    QA_SU_save_binance("1h")
-    #QA_SU_save_binance_1hour()
+    if type == '1d':
+        QA_SU_save_binance_day()
+    else:
+        QA_SU_save_binance(type)
+        
+    # QA_SU_save_binance_1hour()
+    #QA_SU_save_binance_1min()
+
+
+
+if __name__ == '__main__':
+    global Binance_base_url, Binance_base_path
+    Binance_base_url = "https://fapi.binance.com"
+    Binance_base_path = "/fapi/v1"
+
+    QA_SU_save_binance_symbol()
+    # QA_SU_save_binance("1h")
+    # QA_SU_save_binance_1hour()
     #QA_SU_save_binance_1min()

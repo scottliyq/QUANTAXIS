@@ -6,6 +6,9 @@ import time
 from dateutil.tz import tzutc
 import pymongo
 
+# 插入合约collection还是币币collection
+IS_FUTURE = True
+
 from QUANTAXIS.QAUtil.QADate_Adv import (
     QA_util_str_to_Unix_timestamp,
     QA_util_datetime_to_Unix_timestamp,
@@ -81,7 +84,11 @@ def QA_util_find_missing_kline(
     }
 
     if (freq != FREQUENCE.DAY):
-        col = DATABASE.cryptocurrency_min
+        if IS_FUTURE:
+            col = DATABASE.cryptocurrency_future_min
+        else:
+            col = DATABASE.cryptocurrency_min
+
         col.create_index(
             [
                 ("symbol",
@@ -139,7 +146,11 @@ def QA_util_find_missing_kline(
         )
         _data = _data.set_index(pd.DatetimeIndex(_data['datetime']), drop=False)
     else:
-        col = DATABASE.cryptocurrency_day
+        if IS_FUTURE:
+            col = DATABASE.cryptocurrency_future_day
+        else:
+            col = DATABASE.cryptocurrency_day
+
         col.create_index(
             [
                 ("symbol",
